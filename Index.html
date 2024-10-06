@@ -66,14 +66,26 @@
         console.warn(`QR Code scan error: ${error}`);
     }
 
-    // Initialize the QR code scanner
-    const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-        { facingMode: "environment" }, 
-        { fps: 10, qrbox: 250 }, 
-        onScanSuccess, 
-        onScanFailure
-    );
+    // Request camera access and initialize the QR code scanner
+    function startQrScanner() {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then((stream) => {
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: 250 }, 
+                onScanSuccess, 
+                onScanFailure
+            );
+        })
+        .catch((err) => {
+            console.error("Camera access denied:", err);
+            document.getElementById("result").textContent = "Camera access was denied. Please allow access to use the QR scanner.";
+        });
+    }
+
+    // Start QR scanner on page load
+    window.onload = startQrScanner;
 </script>
 
 </body>
